@@ -28,9 +28,9 @@ float cabbageY = 160;
 boolean downPressed, leftPressed, rightPressed;
 
 void setup() {
-	size(640, 480);
+  size(640, 480);
 
-	// IMAGE
+  // IMAGE
   bg = loadImage("img/bg.jpg");
   gameOver = loadImage("img/gameover.jpg");
   title = loadImage("img/title.jpg");
