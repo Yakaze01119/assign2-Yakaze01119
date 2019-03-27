@@ -54,9 +54,9 @@ void setup() {
 }
 
 void draw() {
-	switch(state){
+      switch(state){
   
-		case gameStart:
+    case gameStart:
       background(title);
       image(startNormal, buttonX, buttonY);
       
@@ -73,7 +73,7 @@ void draw() {
 
       break;
       
-		case gameRun:
+    case gameRun:
       imageMode(CORNERS);
       background(bg);
       colorMode(RGB);
@@ -151,7 +151,7 @@ void draw() {
 
       break;
       
-		case gameLose:
+    case gameLose:
       background(gameOver);
       image(restartNormal, buttonX, buttonY);
       
@@ -161,8 +161,11 @@ void draw() {
         image(restartHovered, buttonX, buttonY);
         if(mousePressed){
           if(mouseButton == LEFT){
-            state = gameRun;
             hp = startHp;
+            soldierY = 160 + 80 * floor(random(0,4));
+            cabbageX = 80 * floor(random(0,8));
+            cabbageY = 160 + 80 * floor(random(0,4));
+            state = gameRun;
           }
         }
       }
