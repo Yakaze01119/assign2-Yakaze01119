@@ -1,9 +1,14 @@
 final int gameStart = 0;
 final int gameRun = 1;
 final int gameLose = 2;
+final int idle = 3;
+final int down = 4;
+final int left = 5;
+final int right = 6;
 final int startHp = 2;
 int state = gameStart;
-int hp = 2;
+int groundhogMove = idle;
+int playerHealth = 2;
 
 PImage bg, gameOver, title, soil;
 PImage cabbage, soldier, life;
@@ -19,18 +24,23 @@ float buttonHeight = 60;
 float groundhogX = 320;
 float groundhogY = 80;
 float box = 80;
+float speed = box/16;
+float timer = 0;
 
 float soldierX = -80;
 float soldierY = 160;
 float cabbageX = 0;
 float cabbageY = 160;
 
+int lifeX = 10;
+int lifeY = 10;
+
 boolean downPressed, leftPressed, rightPressed;
 
 void setup() {
-  size(640, 480);
+	size(640, 480);
 
-  // IMAGE
+	// IMAGE
   bg = loadImage("img/bg.jpg");
   gameOver = loadImage("img/gameover.jpg");
   title = loadImage("img/title.jpg");
@@ -54,9 +64,9 @@ void setup() {
 }
 
 void draw() {
-      switch(state){
+	switch(state){
   
-    case gameStart:
+		case gameStart:
       background(title);
       image(startNormal, buttonX, buttonY);
       
@@ -73,7 +83,7 @@ void draw() {
 
       break;
       
-    case gameRun:
+		case gameRun:
       imageMode(CORNERS);
       background(bg);
       colorMode(RGB);
@@ -94,12 +104,9 @@ void draw() {
       image(cabbage, cabbageX, cabbageY);
       if(groundhogX+box > cabbageX && groundhogX < cabbageX+box &&
       groundhogY+box > cabbageY && groundhogY < cabbageY+box){
-        hp ++;
+        playerHealth ++;
         cabbageX = width + box;
         cabbageY = height + box;
-        if(hp > startHp){
-          hp = startHp;
-        }
       }
       
       // Solaier
@@ -110,48 +117,105 @@ void draw() {
       }
       
       // Control Groundhog
-      image(groundhogIdle, groundhogX, groundhogY);
-      if(downPressed){
-        groundhogY = groundhogY + box;
-        downPressed = false;
-        if(groundhogY > height-box){
-          groundhogY = height - box;
-        }
+      switch(groundhogMove){
+        
+        case idle:
+          image(groundhogIdle,groundhogX,groundhogY);
+          timer = 0;
+          if(downPressed){
+            groundhogMove = down;
+          }else if(leftPressed){
+            groundhogMove = left;
+          }else if(rightPressed){
+            groundhogMove = right;
+          }
+          break;
+        case down:
+          image(groundhogDown,groundhogX,groundhogY);
+          groundhogY += speed;
+          timer ++;
+          if(timer == 16){
+            downPressed = false;
+            groundhogMove = idle;
+          }
+          if(groundhogY > height-box){
+            groundhogY = height-box;
+            downPressed = false;
+            groundhogMove = idle;
+          }
+          break;
+        case left:
+          image(groundhogLeft,groundhogX,groundhogY);
+          groundhogX -= speed;
+          timer ++;
+          if(timer == 16){
+            leftPressed = false;
+            groundhogMove = idle;
+          }
+          if(groundhogX < 0){
+            groundhogX = 0;
+            leftPressed = false;
+            groundhogMove = idle;
+          }
+          break;
+        case right:
+          image(groundhogRight,groundhogX,groundhogY);
+          groundhogX += speed;
+          timer ++;
+          if(timer == 16){
+            rightPressed = false;
+            groundhogMove = idle;
+          }
+          if(groundhogX > width-box){
+            groundhogX = width-box;
+            rightPressed = false;
+            groundhogMove = idle;
+          }
+          break;
+          
       }
-      if(leftPressed){
-        groundhogX = groundhogX - box;
-        leftPressed = false;
-        if(groundhogX < 0){
-          groundhogX = 0;
-        }
-      }
-      if(rightPressed){
-        groundhogX = groundhogX + box;
-        rightPressed = false;
-        if(groundhogX > width-box){
-          groundhogX = width - box;
-        }
-      }
+      
       if(groundhogX+box > soldierX && groundhogX < soldierX+box &&
       groundhogY+box > soldierY && groundhogY < soldierY+box){
         groundhogX = 320;
         groundhogY = 80;
-        hp --;
+        groundhogMove = idle;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+        playerHealth --;
       }
       
       // Life
-      if(hp == 0){
-        state = gameLose;
-      }else if(hp == 1){
-        image(life, 10,10);
-      }else{
-        image(life, 10,10);
-        image(life, 80,10);
+      if(playerHealth == 5){
+      for(int i = 0; i<5; i++){
+        image(life, lifeX+i*70, lifeY);
       }
+    }else if(playerHealth == 4){
+      for(int i = 0; i<4; i++){
+        image(life, lifeX+i*70, lifeY);
+      }
+    }else if(playerHealth == 3){
+      for(int i = 0; i<3; i++){
+        image(life, lifeX+i*70, lifeY);
+      }
+    }else if(playerHealth == 2){
+      for(int i = 0; i<2; i++){
+        image(life, lifeX+i*70, lifeY);
+      }
+    }else if(playerHealth == 1){
+      for(int i = 0; i<1; i++){
+        image(life, lifeX+i*70, lifeY);
+      }
+    }else if(playerHealth == 0){
+      state = gameLose;
+      }else{
+      playerHealth = 5;
+    }
 
       break;
       
-    case gameLose:
+		case gameLose:
       background(gameOver);
       image(restartNormal, buttonX, buttonY);
       
@@ -161,7 +225,7 @@ void draw() {
         image(restartHovered, buttonX, buttonY);
         if(mousePressed){
           if(mouseButton == LEFT){
-            hp = startHp;
+            playerHealth = startHp;
             soldierY = 160 + 80 * floor(random(0,4));
             cabbageX = 80 * floor(random(0,8));
             cabbageY = 160 + 80 * floor(random(0,4));
